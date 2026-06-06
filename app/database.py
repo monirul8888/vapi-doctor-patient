@@ -4,7 +4,12 @@ from sqlalchemy.orm import sessionmaker, declarative_base, Session
 
 # PostgreSQL URL format:
 # postgresql://username:password@host:port/dbname
-DATABASE_URL = "postgresql://postgres:1234@localhost/appointments_db"
+DATABASE_URL = "postgresql://postgres.pvrdrrmtgodfjemjmlbk:xt3Q9l0AtXqaG21J@aws-1-ap-northeast-2.pooler.supabase.com:6543/postgres"
+
+
+
+
+
 
 
 engine = create_engine(
