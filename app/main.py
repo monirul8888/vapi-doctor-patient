@@ -1,18 +1,23 @@
 from fastapi import FastAPI
-from app.database import init_db
-from app.routes.appointments import router as appointments_router
+from fastapi.middleware.cors import CORSMiddleware
+from dotenv import load_dotenv
+import os
 
-# Initialize DB on startup
-init_db()
+load_dotenv()
+VAPI_PRIVATE_KEY = os.getenv("VAPI_PRIVATE_KEY")
 
-app = FastAPI(
-    title="Hospital Appointment API",
-    description="FastAPI + SQLAlchemy + PostgreSQL appointment system",
-    version="1.0.0"
+from app.routes import appointments
+
+app = FastAPI(title="Doctor Appointment System")
+
+# Allow frontend Streamlit to call
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # restrict in production
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
-app.include_router(appointments_router)
-
-@app.get("/")
-def root():
-    return {"message": "Hospital Appointment API is running"}
+# Include appointment routes
+app.include_router(appointments.router)

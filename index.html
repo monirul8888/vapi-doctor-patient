@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Messenger</title>
+</head>
+<body>
+
+  <script src="https://unpkg.com/@vapi-ai/client-sdk-react/dist/embed/widget.umd.js" async></script>
+
+  <!-- Voice Widget -->
+  <vapi-widget
+    public-key="YOUR_REAL_PUBLIC_KEY"
+    assistant-id="YOUR_REAL_ASSISTANT_ID"
+    mode="voice"
+    theme="light"
+    position="bottom-right"
+    size="full"
+    radius="large"
+    main-label="Talk with AI Assistant"
+    start-button-text="Start Call"
+    end-button-text="End Call"
+    empty-voice-message="Click start and speak with our AI appointment assistant"
+  ></vapi-widget>
+
+  <!-- Chat Widget -->
+  <vapi-widget
+    public-key="YOUR_REAL_PUBLIC_KEY"
+    assistant-id="YOUR_REAL_ASSISTANT_ID"
+    mode="chat"
+    theme="light"
+    position="bottom-left"
+    size="full"
+    radius="large"
+    main-label="Chat with AI Assistant"
+    empty-chat-message="Hi! I can help you schedule, cancel, list, or search appointments."
+  ></vapi-widget>
+
+</body>
+</html>

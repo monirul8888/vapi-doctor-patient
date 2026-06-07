@@ -1,7 +1,8 @@
 import datetime as dt
+import os
+import requests
 from fastapi import APIRouter, Depends, HTTPException, Path
 from sqlalchemy.orm import Session
-from sqlalchemy import select
 
 from app.database import get_db
 from app.models import Appointment
@@ -13,12 +14,37 @@ from app.schemas import (
     ListAppointmentRequest
 )
 
+# Load private key from .env
+VAPI_PRIVATE_KEY = os.getenv("VAPI_PRIVATE_KEY")
+VAPI_ASSISTANT_ID = os.getenv("VAPI_ASSISTANT_ID")
+
 router = APIRouter(tags=["Appointments"])
+
+# Helper: server-side call to Vapi
+def notify_vapi_server(appointment: AppointmentResponse):
+    url = f"https://api.vapi.ai/assistant/{VAPI_ASSISTANT_ID}/events"
+    payload = {
+        "event": "appointment_scheduled",
+        "data": {
+            "appointment_id": appointment.id,
+            "patient_name": appointment.patient_name,
+            "reason": appointment.reason,
+            "start_time": appointment.start_time.isoformat()
+        }
+    }
+    headers = {
+        "Authorization": f"Bearer {VAPI_PRIVATE_KEY}",
+        "Content-Type": "application/json"
+    }
+    try:
+        requests.post(url, headers=headers, json=payload, timeout=10)
+    except Exception as e:
+        print(f"[VAPI] Error sending server-side event: {e}")
+
 
 # POST endpoints
 @router.post("/schedule_appointment/", response_model=AppointmentResponse)
 def schedule_appointment(request: AppointmentRequest, db: Session = Depends(get_db)):
-    # Optional: check for duplicate time slot
     existing = db.query(Appointment).filter(
         Appointment.start_time == request.start_time,
         Appointment.canceled == False
@@ -34,6 +60,10 @@ def schedule_appointment(request: AppointmentRequest, db: Session = Depends(get_
     db.add(new_appointment)
     db.commit()
     db.refresh(new_appointment)
+
+    # Notify Vapi server-side
+    notify_vapi_server(new_appointment)
+
     return new_appointment
 
 
